@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.apaterakis</groupId>
-	<artifactId>resttransactionapi</artifactId>
+	<artifactId>RestTransactionAPI</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>resttransactionapi</name>
+	<name>RestTransactionAPI</name>
 	<description>Rest api for transaction data.</description>
 	<url/>
 	<licenses>
@@ -53,6 +53,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>7.0.1.Final</version>
 		</dependency>
 	</dependencies>
 

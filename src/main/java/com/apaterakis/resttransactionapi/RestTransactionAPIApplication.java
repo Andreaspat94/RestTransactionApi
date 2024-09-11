@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ResttransactionapiApplication {
+public class RestTransactionAPIApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ResttransactionapiApplication.class, args);
+		SpringApplication.run(RestTransactionAPIApplication.class, args);
 	}
 
 }
