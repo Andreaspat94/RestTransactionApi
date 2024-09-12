@@ -1,5 +1,6 @@
 package com.apaterakis.resttransactionapi.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -40,6 +41,7 @@ public class Transaction {
     private TransactionType type;
 
     @NotNull
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yy");
     @Column(nullable = false)
     private LocalDate date;
 
@@ -48,11 +50,10 @@ public class Transaction {
         return this.date.format(formatter);
     }
 
-/**
- * Formatting the date:
- * transaction.setDate(LocalDate.now());
- *
- * String formattedDate = transaction.getFormattedDate();
- * System.out.println(formattedDate);  // Output: mm/dd/yy
- */
+    public Transaction(Account account, BigDecimal amount, TransactionType type, LocalDate date) {
+        this.account = account;
+        this.amount = amount;
+        this.type = type;
+        this.date = date;
+    }
 }

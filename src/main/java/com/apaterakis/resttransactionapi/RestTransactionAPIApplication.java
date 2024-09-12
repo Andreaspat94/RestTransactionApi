@@ -18,6 +18,7 @@ public class RestTransactionAPIApplication {
 		return runner -> {
 			service.loadDataFromBeneficiariesCsv("beneficiaries.csv");
 			service.loadDataFromAccountsCsv("accounts.csv");
+			service.loadDataFromTransactionsCsv("transactions.csv");
 		};
 	}
 }
