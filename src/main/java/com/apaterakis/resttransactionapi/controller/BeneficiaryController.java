@@ -4,6 +4,11 @@ import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.model.Response;
 import com.apaterakis.resttransactionapi.service.BeneficiaryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,26 @@ public class BeneficiaryController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get location by latitude, longitude", description = "Returns the location based on the provided coordinates. If not found, then finds and returns the nearest point of interest.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Beneficiary found."),
+            @ApiResponse(responseCode = "400", description = "BadRequest. The parameter type is invalid.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                           "status": 400,
+                           "message": "The parameter type `23fff` is invalid. `Long` type is required",
+                           "successful": false
+                       }
+                    """))),
+            @ApiResponse(responseCode = "404", description = "Beneficiary has not found.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                         "status": 404,
+                         "message": "Beneficiary has not found.",
+                         "successful": false
+                       }
+                    """)))
+    })
     public ResponseEntity<Response> findById(@PathVariable("id") Long id) {
         Optional<Beneficiary> beneficiary = beneficiaryService.findById(id);
 

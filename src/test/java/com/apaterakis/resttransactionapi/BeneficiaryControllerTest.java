@@ -98,6 +98,5 @@ class BeneficiaryControllerBadRequestTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message",is("The parameter type `23df` is invalid. `Long` type is required ")))
                 .andExpect(jsonPath("$.status", is(400)));
-
     }
 }
