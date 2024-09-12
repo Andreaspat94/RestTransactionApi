@@ -24,8 +24,9 @@ public class Account {
             foreignKey = @ForeignKey(name="FK_ACCOUNT_BENEFICIARY"))
     private Beneficiary beneficiary;
 
-    @Column(columnDefinition = "int default 0")
+    @Column(nullable = false)
     private BigDecimal balance;
+
 
     public Account(Beneficiary beneficiary, BigDecimal balance) {
         this.beneficiary = beneficiary;

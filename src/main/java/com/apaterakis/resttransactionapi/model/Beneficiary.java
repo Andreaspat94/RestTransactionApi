@@ -32,9 +32,7 @@ public class Beneficiary {
 
     @OneToMany(mappedBy = "beneficiary")
     private List<Account> accounts;
-//
-//    @OneToMany(mappedBy = "")
-//    private List<Transaction> transactions;
+
 
     public Beneficiary(String firstName, String lastName) {
         this.firstName = firstName;
