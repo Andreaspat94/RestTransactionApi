@@ -33,7 +33,6 @@ public class Beneficiary {
     @OneToMany(mappedBy = "beneficiary")
     private List<Account> accounts;
 
-
     public Beneficiary(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;

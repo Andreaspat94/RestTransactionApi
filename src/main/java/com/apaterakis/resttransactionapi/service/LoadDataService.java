@@ -7,6 +7,7 @@ import com.apaterakis.resttransactionapi.model.Transaction;
 import com.apaterakis.resttransactionapi.model.TransactionType;
 import com.apaterakis.resttransactionapi.repository.AccountRepository;
 import com.apaterakis.resttransactionapi.repository.BeneficiaryRepository;
+import com.apaterakis.resttransactionapi.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,14 @@ public class LoadDataService {
     private final BeneficiaryRepository beneficiaryRepository;
     private final AccountRepository accountRepository;
     private final TransactionService transactionService;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
-    public LoadDataService(BeneficiaryRepository beneficiaryRepository, AccountRepository accountRepository, TransactionService transactionService) {
+    public LoadDataService(BeneficiaryRepository beneficiaryRepository, AccountRepository accountRepository, TransactionService transactionService, TransactionRepository transactionRepository) {
         this.beneficiaryRepository = beneficiaryRepository;
         this.accountRepository = accountRepository;
         this.transactionService = transactionService;
+        this.transactionRepository = transactionRepository;
     }
 
     public void loadDataFromBeneficiariesCsv(String csvFilePath) {
@@ -126,5 +129,17 @@ public class LoadDataService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isBeneficiaryTableEmpty() {
+        return beneficiaryRepository.count() == 0;
+    }
+
+    public boolean isAccountTableEmpty() {
+        return accountRepository.count() == 0;
+    }
+
+    public boolean isTransactionTableEmpty() {
+        return transactionRepository.count() == 0;
     }
 }

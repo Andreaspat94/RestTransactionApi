@@ -16,9 +16,12 @@ public class RestTransactionAPIApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(LoadDataService service) {
 		return runner -> {
-			service.loadDataFromBeneficiariesCsv("beneficiaries.csv");
-			service.loadDataFromAccountsCsv("accounts.csv");
-			service.loadDataFromTransactionsCsv("transactions.csv");
+			if (service.isBeneficiaryTableEmpty())
+				service.loadDataFromBeneficiariesCsv("beneficiaries.csv");
+			if (service.isAccountTableEmpty())
+				service.loadDataFromAccountsCsv("accounts.csv");
+			if (service.isTransactionTableEmpty())
+				service.loadDataFromTransactionsCsv("transactions.csv");
 		};
 	}
 }
