@@ -9,9 +9,9 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class Response {
+public class Response<T> {
     private int status;
     private String message;
-    private Beneficiary beneficiary;
+    private T data;
     private boolean successful;
 }

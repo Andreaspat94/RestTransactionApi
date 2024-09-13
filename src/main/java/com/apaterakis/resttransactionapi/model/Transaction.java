@@ -1,6 +1,8 @@
 package com.apaterakis.resttransactionapi.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -25,11 +27,8 @@ public class Transaction {
     private long transactionId;
 
     @NotNull
-    @ManyToOne
-    @JoinColumn(name = "account_id",
-            referencedColumnName = "accountId",
-            foreignKey = @ForeignKey(name = "FK_TRANSACTION_ACCOUNT"))
-    private Account account;
+    @Column(nullable = false)
+    private Long accountId;
 
     @NotNull
     @Column(nullable = false)
@@ -41,17 +40,19 @@ public class Transaction {
     private TransactionType type;
 
     @NotNull
+    @JsonIgnore
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yy");
     @Column(nullable = false)
     private LocalDate date;
 
+    @JsonProperty("date")
     public String getFormattedDate() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
         return this.date.format(formatter);
     }
 
-    public Transaction(Account account, BigDecimal amount, TransactionType type, LocalDate date) {
-        this.account = account;
+    public Transaction(Long accountId, BigDecimal amount, TransactionType type, LocalDate date) {
+        this.accountId = accountId;
         this.amount = amount;
         this.type = type;
         this.date = date;

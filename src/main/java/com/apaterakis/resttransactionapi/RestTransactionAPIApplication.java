@@ -22,6 +22,7 @@ public class RestTransactionAPIApplication {
 				service.loadDataFromAccountsCsv("accounts.csv");
 			if (service.isTransactionTableEmpty())
 				service.loadDataFromTransactionsCsv("transactions.csv");
+			System.out.println("---------------- All data loaded! ---------");
 		};
 	}
 }

@@ -24,7 +24,7 @@ public class GenericExceptionHandler {
         String invalidValue = exc.getValue().toString();
         String message = "";
         String controllerName = handlerMethod.getBeanType().getSimpleName();
-        if (controllerName.equals("BeneficiaryController")) {
+        if (controllerName.equals("BeneficiaryController") || controllerName.equals("TransactionController")) {
             message = "The parameter type `" + invalidValue + "` is invalid. `Long` type is required ";
         }
         ErrorResponse error = new ErrorResponse(

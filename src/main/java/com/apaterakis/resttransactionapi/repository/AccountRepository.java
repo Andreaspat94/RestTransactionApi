@@ -7,11 +7,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    @Query("SELECT a FROM Account a WHERE a.beneficiary.beneficiaryId = :beneficiaryId")
-    Optional<List<Account>> findAccountsByBeneficiaryId(@Param("beneficiaryId") Long beneficiaryId);
+//    @Query("SELECT a FROM Account a WHERE a.beneficiary.beneficiaryId = :beneficiaryId")
+//    List<Account> findAccountsByBeneficiaryId(@Param("beneficiaryId") Long beneficiaryId);
 }

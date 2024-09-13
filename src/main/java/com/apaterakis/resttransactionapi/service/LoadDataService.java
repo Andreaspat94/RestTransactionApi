@@ -20,6 +20,9 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -90,10 +93,15 @@ public class LoadDataService {
         return new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
     }
 
+    /**
+     * First add the data to an ArrayList, then sort the array based on date, and finally store the data to db.
+     */
     public void loadDataFromTransactionsCsv(String csvFilePath) {
         try {
             BufferedReader lineReader = CreateBufferedReader(csvFilePath);
             String lineText;
+
+            List<Transaction> transactions = new ArrayList<>();
             //skip the header line
             lineReader.readLine();
 
@@ -101,30 +109,56 @@ public class LoadDataService {
 
                 String[] data = lineText.split(",");
                 Long accountId = Long.parseLong(data[1]);
-                Optional<Account> account = accountRepository.findById(accountId);
+                Optional<Account> optionalAccount = accountRepository.findById(accountId);
 
-                if (account.isPresent()) {
+                if (optionalAccount.isPresent()) {
+                    Account account = optionalAccount.get();
+
+                    // parsing data from csv line
                     BigDecimal amount = new BigDecimal(data[2]);
                     TransactionType type = TransactionType.valueOf(data[3].toUpperCase());
 
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
                     LocalDate date = LocalDate.parse(data[4], formatter);
-                    Transaction transaction = new Transaction(account.get(), amount, type, date);
-                    Transaction transactionSucceed = transactionService.makeTransaction(transaction);
+                    Transaction transaction = new Transaction(account, amount, type, date);
 
-                    BigDecimal result;
-                    if (transactionSucceed.getType().equals(TransactionType.WITHDRAWAL)) {
-                        result = account.get().getBalance().subtract(transaction.getAmount());
-                    } else {
-                        result = account.get().getBalance().add(transaction.getAmount());
-                    }
-                    account.get().setBalance(result);
-                    accountRepository.save(account.get());
+                    // add to list
+                    transactions.add(transaction);
 
                 } else {
                     System.out.println("There is no account with this ID: " + accountId);
                 }
             }
+
+            // sort the transactions by date (oldest first)
+            transactions.sort(Comparator.comparing(Transaction::getDate));
+
+            //Process the sorted transactions
+            for (Transaction transaction : transactions) {
+                if (transaction.getAccount().getAccountId() == 1445) {}
+                BigDecimal newBalance;
+                Account account = transaction.getAccount();
+
+                //check the balance
+                if (transaction.getType().equals(TransactionType.WITHDRAWAL)) {
+                    newBalance = account.getBalance().subtract(transaction.getAmount());
+
+                    if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new InsufficientBalanceException("Insufficient funds to complete the transaction from account with id: " + account.getAccountId());
+                    }
+
+                } else {
+                    newBalance = account.getBalance().add(transaction.getAmount());
+                }
+
+                account.setBalance(newBalance);
+                accountRepository.save(account);
+
+                transaction.getAccount().setBalance(newBalance);
+                transactionService.saveTransaction(transaction);
+            }
+
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -140,5 +174,10 @@ public class LoadDataService {
 
     public boolean isTransactionTableEmpty() {
         return transactionRepository.count() == 0;
+    }
+
+    private void checkBalance() {
+
+
     }
 }

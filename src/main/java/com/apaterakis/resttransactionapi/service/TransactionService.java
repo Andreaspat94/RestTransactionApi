@@ -6,9 +6,11 @@ import com.apaterakis.resttransactionapi.model.Transaction;
 import com.apaterakis.resttransactionapi.model.TransactionType;
 import com.apaterakis.resttransactionapi.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class TransactionService {
@@ -19,20 +21,12 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    /**
-     * This method is only for loading .csv data
-     */
-    public Transaction makeTransaction(Transaction transaction) {
-        Account account = transaction.getAccount();
-//        transaction.setDate(LocalDate.now());
-//        transaction.getFormattedDate();
-        if (transaction.getType().equals(TransactionType.WITHDRAWAL)) {
-            BigDecimal result = account.getBalance().subtract(transaction.getAmount());
 
-            if (result.compareTo(BigDecimal.ZERO) < 0) {
-                throw new InsufficientBalanceException("Insufficient funds to complete the transaction from account with id: " + account.getAccountId());
-            }
-        }
+    public Transaction saveTransaction(Transaction transaction) {
         return transactionRepository.save(transaction);
+    }
+
+    public List<Transaction> findByBeneficiaryId(Long id) {
+        return transactionRepository.findByBeneficiaryId(id);
     }
 }
