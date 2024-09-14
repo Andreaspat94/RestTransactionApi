@@ -11,8 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
-//@ToString(exclude = "accounts") // avoid infinite recursion between account and beneficiary circular calls
+//@ToString
+@ToString(exclude = "accounts") // avoid infinite recursion between account and beneficiary circular calls
 @NoArgsConstructor
 @Entity
 @Table(name="beneficiaries")
@@ -36,5 +36,11 @@ public class Beneficiary {
     public Beneficiary(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public Beneficiary(String firstName, String lastName, List<Account> accounts) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.accounts = accounts;
     }
 }

@@ -2,6 +2,7 @@ package com.apaterakis.resttransactionapi.service;
 
 import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
+import com.apaterakis.resttransactionapi.model.BeneficiaryRequest;
 import com.apaterakis.resttransactionapi.repository.BeneficiaryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BeneficiaryServiceTest {
@@ -25,17 +25,22 @@ public class BeneficiaryServiceTest {
     @Mock
     private BeneficiaryRepository repository;
 
+    @Mock
+    private AccountService accountService;
+
     @InjectMocks
     private BeneficiaryService service;
 
     private Beneficiary beneficiary;
     private Account account;
+    private BeneficiaryRequest requestBody;
 
     @BeforeEach
     void setUp() {
         beneficiary = new Beneficiary("firstName", "lastName");
         account = new Account(beneficiary, new BigDecimal("5000.00"));
         beneficiary.setAccounts(List.of(account));
+        requestBody = new BeneficiaryRequest(beneficiary.getFirstName(), beneficiary.getLastName(), new BigDecimal(5000));
     }
 
     @Test
@@ -54,5 +59,24 @@ public class BeneficiaryServiceTest {
         verify(repository).findById(any());
 
         assertEquals(Optional.empty(), result);
+    }
+
+    @Test
+    void createBeneficiary() {
+        Beneficiary newBeneficiary = new Beneficiary(
+                requestBody.getFirstName(),
+                requestBody.getLastName()
+        );
+        Account newAccount = new Account(newBeneficiary,new BigDecimal(5000));
+
+        when(repository.save(any(Beneficiary.class))).thenReturn(newBeneficiary);
+        when(accountService.save(any(Account.class))).thenReturn(newAccount);
+
+        Beneficiary result = service.createBeneficiary(requestBody);
+
+        verify(repository, times(2)).save(any(Beneficiary.class));
+        verify(accountService).save(any(Account.class));
+
+        assertEquals(newBeneficiary, result);
     }
 }

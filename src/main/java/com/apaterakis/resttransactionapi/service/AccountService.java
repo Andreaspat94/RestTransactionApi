@@ -16,6 +16,10 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
+    public Account save(Account account) {
+        return accountRepository.save(account);
+    }
+
 //    public List<Account> findAccountsByBeneficiaryId(Long id) {
 //        return accountRepository.findAccountsByBeneficiaryId(id);
 //    }
