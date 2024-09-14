@@ -1,6 +1,7 @@
 package com.apaterakis.resttransactionapi.service;
 
 import com.apaterakis.resttransactionapi.exception.InsufficientBalanceException;
+import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.model.Transaction;
@@ -112,7 +113,6 @@ public class LoadDataService {
                 Optional<Account> optionalAccount = accountRepository.findById(accountId);
 
                 if (optionalAccount.isPresent()) {
-                    Account account = optionalAccount.get();
 
                     // parsing data from csv line
                     BigDecimal amount = new BigDecimal(data[2]);
@@ -120,7 +120,7 @@ public class LoadDataService {
 
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
                     LocalDate date = LocalDate.parse(data[4], formatter);
-                    Transaction transaction = new Transaction(account, amount, type, date);
+                    Transaction transaction = new Transaction(accountId, amount, type, date);
 
                     // add to list
                     transactions.add(transaction);
@@ -135,10 +135,14 @@ public class LoadDataService {
 
             //Process the sorted transactions
             for (Transaction transaction : transactions) {
-                if (transaction.getAccount().getAccountId() == 1445) {}
                 BigDecimal newBalance;
-                Account account = transaction.getAccount();
+                Long accountId = transaction.getAccountId();
 
+                Optional<Account> optionalAccount = accountRepository.findById(accountId);
+                if (optionalAccount.isEmpty()) {
+                    throw new NotFoundException("This transaction with id: " + transaction.getTransactionId() + " has no account Id.");
+                }
+                Account account = optionalAccount.get();
                 //check the balance
                 if (transaction.getType().equals(TransactionType.WITHDRAWAL)) {
                     newBalance = account.getBalance().subtract(transaction.getAmount());
@@ -154,7 +158,6 @@ public class LoadDataService {
                 account.setBalance(newBalance);
                 accountRepository.save(account);
 
-                transaction.getAccount().setBalance(newBalance);
                 transactionService.saveTransaction(transaction);
             }
 
@@ -174,10 +177,5 @@ public class LoadDataService {
 
     public boolean isTransactionTableEmpty() {
         return transactionRepository.count() == 0;
-    }
-
-    private void checkBalance() {
-
-
     }
 }

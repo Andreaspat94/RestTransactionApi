@@ -53,7 +53,7 @@ public class BeneficiaryController {
         Optional<Beneficiary> beneficiary = beneficiaryService.findById(id);
 
         if (beneficiary.isEmpty())
-            throw new NotFoundException(404, "Beneficiary has not found.");
+            throw new NotFoundException("Beneficiary has not found.");
 
         return ResponseEntity.ok(new Response(HttpStatus.OK.value(),
                 "Beneficiary found.",

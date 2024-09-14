@@ -10,9 +10,9 @@ public class NotFoundException extends RuntimeException {
     public NotFoundException() {
     }
 
-    public NotFoundException(int status, String message) {
+    public NotFoundException( String message) {
         super(message);
-        this.status = status;
+        this.status = 404;
     }
 
 }

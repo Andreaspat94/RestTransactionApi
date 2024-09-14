@@ -56,7 +56,7 @@ public class TransactionController {
         List<Transaction> transactionList = transactionService.findByBeneficiaryId(id);
 
         if (transactionList.isEmpty())
-            throw new NotFoundException(404, "No transactions found.");
+            throw new NotFoundException("No transactions found.");
 
         return ResponseEntity.ok(new Response(HttpStatus.OK.value(),
                 "Transactions found.",
