@@ -47,6 +47,7 @@ public class TransactionControllerTest {
 
     private Transaction transaction1;
     private Transaction transaction2;
+    private Transaction transaction3;
     private List<Transaction> transactions;
 
     @BeforeEach
@@ -54,7 +55,8 @@ public class TransactionControllerTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
         LocalDate date = LocalDate.parse("01/10/23", formatter);
         transaction1 = new Transaction(1L,new BigDecimal(200), TransactionType.WITHDRAWAL, date);
-        transaction2 = new Transaction(2L,new BigDecimal(100), TransactionType.DEPOSIT, date);
+        transaction2 = new Transaction(1L,new BigDecimal(100), TransactionType.DEPOSIT, date);
+        transaction3 = new Transaction(1L,new BigDecimal(300), TransactionType.WITHDRAWAL, date);
 
         transactions = new ArrayList<>();
         transactions.add(transaction1);
@@ -73,6 +75,34 @@ public class TransactionControllerTest {
 
     @Test
     void findByBeneficiaryIdNotFound() {
+        when(service.findByBeneficiaryId(any())).thenReturn(List.of());
+        final NotFoundException exc = assertThrows(NotFoundException.class,
+                () -> controller.findByBeneficiaryId(1L));
+        verify(service).findByBeneficiaryId(any());
+
+        String actualMessage = exc.getMessage();
+        String expectedMessage = "No transactions found.";
+
+        assertEquals(404, exc.getStatus());
+        assertThrows(NotFoundException.class, () -> controller.findByBeneficiaryId(1L));
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void findLargestTransactionByBeneficiaryId() {
+        transactions.add(transaction3);
+        when(service.findByBeneficiaryId(any())).thenReturn(transactions);
+        when(service.findLargestTransaction(transactions)).thenReturn(transaction3);
+        final ResponseEntity<Response> response = controller.findLargestTransactionByBeneficiaryId(1L);
+        verify(service).findByBeneficiaryId(any());
+        verify(service).findLargestTransaction(any());
+
+        assertEquals(transaction3, response.getBody().getData());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void findLargestTransactionByBeneficiaryIdNotFound() {
         when(service.findByBeneficiaryId(any())).thenReturn(List.of());
         final NotFoundException exc = assertThrows(NotFoundException.class,
                 () -> controller.findByBeneficiaryId(1L));
@@ -107,6 +137,15 @@ class TransactionControllerBadRequestTest {
     @Test
     void findByIdBadRequest() throws Exception {
         mockMvc.perform(get("/api/transaction/23df")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    void findLargestTransactionByBeneficiaryId() throws Exception {
+        mockMvc.perform(get("/api/transaction/largest/23df")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))

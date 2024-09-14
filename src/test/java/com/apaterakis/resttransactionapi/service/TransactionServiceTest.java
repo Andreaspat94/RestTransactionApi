@@ -38,6 +38,7 @@ public class TransactionServiceTest {
     List<Transaction> transactions;
     private Transaction transaction1;
     private Transaction transaction2;
+    private Transaction transaction3;
 
     private Beneficiary beneficiary;
     private Account account1;
@@ -54,7 +55,8 @@ public class TransactionServiceTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
         LocalDate date = LocalDate.parse("01/10/23", formatter);
         transaction1 = new Transaction(1L,new BigDecimal(200), TransactionType.WITHDRAWAL, date);
-        transaction2 = new Transaction(2L,new BigDecimal(100), TransactionType.DEPOSIT, date);
+        transaction2 = new Transaction(1L,new BigDecimal(100), TransactionType.DEPOSIT, date);
+        transaction3 = new Transaction(1L,new BigDecimal(300), TransactionType.WITHDRAWAL, date);
     }
 
     @Test
@@ -77,6 +79,14 @@ public class TransactionServiceTest {
         verify(beneficiaryService).findById(any());
 
         assertEquals(List.of(), result);
+    }
+
+    @Test
+    void findLargestTransaction() {
+        transactions.add(transaction3);
+        Transaction result = transactionService.findLargestTransaction(transactions);
+
+        assertEquals(transaction3, result);
     }
 }
 

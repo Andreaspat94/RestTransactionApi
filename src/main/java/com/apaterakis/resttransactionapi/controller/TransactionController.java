@@ -65,4 +65,39 @@ public class TransactionController {
         ));
     }
 
+    @GetMapping("/largest/{id}")
+    @Operation(summary = "Get largest withdrawal by id", description = "Returns the largest withdrawal transaction by beneficiary id. " +
+            "If not found, then throws NotFoundException.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Largest Transaction found."),
+            @ApiResponse(responseCode = "400", description = "BadRequest. The parameter type is invalid.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                           "status": 400,
+                           "message": "The parameter type `23fff` is invalid. `Long` type is required",
+                           "successful": false
+                       }
+                    """))),
+            @ApiResponse(responseCode = "404", description = "Transactions not found.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                         "status": 404,
+                         "message": "No transactions found.",
+                         "successful": false
+                       }
+                    """)))
+    })
+    public ResponseEntity<Response> findLargestTransactionByBeneficiaryId(@PathVariable("id") Long id) {
+        List<Transaction> transactionList = transactionService.findByBeneficiaryId(id);
+
+        if (transactionList.isEmpty())
+            throw new NotFoundException("No transactions found.");
+
+        Transaction transaction = transactionService.findLargestTransaction(transactionList);
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(),
+                "Largest Transaction found.",
+                transaction,
+                true
+        ));
+    }
 }
