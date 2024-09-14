@@ -1,9 +1,8 @@
-package com.apaterakis.resttransactionapi;
+package com.apaterakis.resttransactionapi.service;
 
 import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.repository.BeneficiaryRepository;
-import com.apaterakis.resttransactionapi.service.BeneficiaryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,5 @@
-package com.apaterakis.resttransactionapi;
+package com.apaterakis.resttransactionapi.controller;
 
-import com.apaterakis.resttransactionapi.controller.BeneficiaryController;
 import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
@@ -57,7 +56,7 @@ public class BeneficiaryControllerTest {
         final ResponseEntity<Response> response = controller.findById(1L);
         verify(service).findById(any());
 
-        assertEquals(beneficiary, response.getBody().getBeneficiary());
+        assertEquals(beneficiary, response.getBody().getData());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 

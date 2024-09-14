@@ -33,9 +33,9 @@ public class TransactionService {
         if (beneficiaryOptional.isPresent()) {
             Beneficiary beneficiary = beneficiaryOptional.get();
             List<Account> accounts = beneficiary.getAccounts();
-            if (accounts.isEmpty()) {
-                throw new NotFoundException("Beneficiary with id: " + id + " has not accounts");
-            }
+//            if (accounts.isEmpty()) {
+//                throw new NotFoundException("Beneficiary with id: " + id + " has not accounts");
+//            }
 
             for (Account account : accounts) {
                 List<Transaction> transactions = transactionRepository.findAllByAccountId(account.getAccountId());
