@@ -4,6 +4,7 @@ import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.model.BeneficiaryRequest;
 
+import com.apaterakis.resttransactionapi.model.BeneficiaryUpdateRequest;
 import com.apaterakis.resttransactionapi.repository.BeneficiaryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,12 @@ public class BeneficiaryService {
         return beneficiaryRepository.findById(id);
     }
 
-    public boolean existsByFirstNameAndLastName(String firstName, String lastName) {
-        return beneficiaryRepository.existsByFirstNameAndLastName(firstName, lastName);
-    }
-
     public Beneficiary save(Beneficiary beneficiary) {
         return beneficiaryRepository.save(beneficiary);
+    }
+
+    public boolean existsByFirstNameAndLastName(String firstName, String lastName) {
+        return beneficiaryRepository.existsByFirstNameAndLastName(firstName, lastName);
     }
 
     public Beneficiary createBeneficiary(BeneficiaryRequest request) {
@@ -45,5 +46,15 @@ public class BeneficiaryService {
 
         newBeneficiary.setAccounts(new ArrayList<>(List.of(account)));
         return save(newBeneficiary);
+    }
+
+    public Beneficiary updateBeneficiary(Beneficiary beneficiary, BeneficiaryUpdateRequest beneficiaryRequest) {
+           beneficiary.setFirstName(beneficiaryRequest.getFirstName());
+           beneficiary.setLastName(beneficiaryRequest.getLastName());
+           return save(beneficiary);
+    }
+
+    public void deleteBeneficiary(Long id) {
+        beneficiaryRepository.deleteById(id);
     }
 }

@@ -3,6 +3,7 @@ package com.apaterakis.resttransactionapi.service;
 import com.apaterakis.resttransactionapi.model.Account;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.model.BeneficiaryRequest;
+import com.apaterakis.resttransactionapi.model.BeneficiaryUpdateRequest;
 import com.apaterakis.resttransactionapi.repository.BeneficiaryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ public class BeneficiaryServiceTest {
     private Beneficiary beneficiary;
     private Account account;
     private BeneficiaryRequest requestBody;
+    private BeneficiaryUpdateRequest updateRequest;
 
     @BeforeEach
     void setUp() {
@@ -41,6 +43,7 @@ public class BeneficiaryServiceTest {
         account = new Account(beneficiary, new BigDecimal("5000.00"));
         beneficiary.setAccounts(List.of(account));
         requestBody = new BeneficiaryRequest(beneficiary.getFirstName(), beneficiary.getLastName(), new BigDecimal(5000));
+        updateRequest = new BeneficiaryUpdateRequest("UpdatedName", "UpdatedLastName");
     }
 
     @Test
@@ -78,5 +81,22 @@ public class BeneficiaryServiceTest {
         verify(accountService).save(any(Account.class));
 
         assertEquals(newBeneficiary, result);
+    }
+
+    @Test
+    void updateBeneficiary() {
+        Beneficiary updatedBeneficiary = new Beneficiary(updateRequest.getFirstName(), updateRequest.getLastName(), beneficiary.getAccounts());
+        when(repository.save(any(Beneficiary.class))).thenReturn(updatedBeneficiary);
+
+        Beneficiary result = service.updateBeneficiary(beneficiary, updateRequest);
+        verify(repository).save(any(Beneficiary.class));
+
+        assertEquals(updatedBeneficiary, result);
+    }
+
+    @Test
+    void deleteBeneficiary() {
+        service.deleteBeneficiary(1L);
+        verify(repository,times(1)).deleteById(1L);
     }
 }

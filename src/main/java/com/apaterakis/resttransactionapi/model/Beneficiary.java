@@ -30,7 +30,7 @@ public class Beneficiary {
     @Column(nullable = false)
     private String lastName;
 
-    @OneToMany(mappedBy = "beneficiary")
+    @OneToMany(mappedBy = "beneficiary", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 
     public Beneficiary(String firstName, String lastName) {

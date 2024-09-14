@@ -4,6 +4,7 @@ import com.apaterakis.resttransactionapi.exception.DuplicateBeneficiaryException
 import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Beneficiary;
 import com.apaterakis.resttransactionapi.model.BeneficiaryRequest;
+import com.apaterakis.resttransactionapi.model.BeneficiaryUpdateRequest;
 import com.apaterakis.resttransactionapi.model.Response;
 import com.apaterakis.resttransactionapi.service.BeneficiaryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -81,7 +82,7 @@ public class BeneficiaryController {
             @ApiResponse(responseCode = "409", description = "A beneficiary with the same first name and last name already exists.",
                     content = @Content(examples = @ExampleObject(value = """
                        {
-                         "status": 404,
+                         "status": 409,
                          "message": "A beneficiary with the same first name and last name already exists.",
                          "successful": false
                        }
@@ -100,5 +101,61 @@ public class BeneficiaryController {
                 newBeneficiary,
                 true
         ));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update beneficiary.", description = "Updates a beneficiary's first and last name" +
+            "If beneficiary with same first and last name already exists, then throws DuplicateBeneficiaryException.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Beneficiary created."),
+            @ApiResponse(responseCode = "400", description = "BadRequest. The parameter type is invalid.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                           "status": 400,
+                           "message": "The parameter type `1004ff` is invalid. `Long` type is required ",
+                           "successful": false
+                       }
+                    """))),
+            @ApiResponse(responseCode = "404", description = "A beneficiary with the same first name and last name already exists.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                         "status": 404,
+                         "message": "Beneficiary has not found.",
+                         "successful": false
+                       }
+                    """)))
+    })
+    public ResponseEntity<Response> updateBeneficiary(@PathVariable("id") Long id,
+                                                      @RequestBody BeneficiaryUpdateRequest beneficiaryRequest) {
+        Optional<Beneficiary> beneficiaryOptional = beneficiaryService.findById(id);
+
+        if (beneficiaryOptional.isEmpty())
+            throw new NotFoundException("Beneficiary has not found.");
+
+        Beneficiary beneficiary = beneficiaryOptional.get();
+        Beneficiary beneficiaryUpdated = beneficiaryService.updateBeneficiary(beneficiary, beneficiaryRequest);
+
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(),
+                "Beneficiary updated.",
+                beneficiaryUpdated,
+                true
+        ));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response> deleteBeneficiary(@PathVariable("id") Long id) {
+        Optional<Beneficiary> beneficiaryOptional = beneficiaryService.findById(id);
+
+        if (beneficiaryOptional.isEmpty())
+            throw new NotFoundException("Beneficiary has not found.");
+
+        beneficiaryService.deleteBeneficiary(id);
+
+        return ResponseEntity.ok(new Response(HttpStatus.OK.value(),
+                "Beneficiary with id: " + id + " is deleted.",
+                null,
+                true
+        ));
+
     }
 }

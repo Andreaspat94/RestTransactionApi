@@ -2,10 +2,7 @@ package com.apaterakis.resttransactionapi.controller;
 
 import com.apaterakis.resttransactionapi.exception.DuplicateBeneficiaryException;
 import com.apaterakis.resttransactionapi.exception.NotFoundException;
-import com.apaterakis.resttransactionapi.model.Account;
-import com.apaterakis.resttransactionapi.model.Beneficiary;
-import com.apaterakis.resttransactionapi.model.BeneficiaryRequest;
-import com.apaterakis.resttransactionapi.model.Response;
+import com.apaterakis.resttransactionapi.model.*;
 import com.apaterakis.resttransactionapi.service.BeneficiaryService;
 import com.apaterakis.resttransactionapi.service.LoadDataService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.is;
 
@@ -49,12 +45,15 @@ public class BeneficiaryControllerTest {
     private Beneficiary beneficiary;
     private Account account;
     private BeneficiaryRequest requestBody;
+    private BeneficiaryUpdateRequest updateRequest;
+
     @BeforeEach
     void setUp() {
         beneficiary = new Beneficiary("firstName", "lastName");
         account = new Account(beneficiary, new BigDecimal("5000.00"));
         beneficiary.setAccounts(List.of(account));
         requestBody = new BeneficiaryRequest("NewName", "NewSurname", new BigDecimal(400));
+        updateRequest = new BeneficiaryUpdateRequest("UpdatedName", "UpdatedLastName");
     }
 
     @Test
@@ -116,6 +115,63 @@ public class BeneficiaryControllerTest {
         assertTrue(actualMessage.contains(expectedMessage));
     }
 
+    @Test
+    void updateBeneficiary() {
+        Beneficiary updatedBeneficiary = new Beneficiary(updateRequest.getFirstName(), updateRequest.getLastName(), beneficiary.getAccounts());
+        when(service.findById(any())).thenReturn(Optional.of(beneficiary));
+        when(service.updateBeneficiary(beneficiary, updateRequest)).thenReturn(updatedBeneficiary);
+
+        final ResponseEntity<Response> response = controller.updateBeneficiary(1L, updateRequest);
+
+        verify(service).findById(any());
+        verify(service).updateBeneficiary(beneficiary,updateRequest);
+
+        assertEquals(updatedBeneficiary, response.getBody().getData());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void updateBeneficiaryNotFound() {
+        when(service.findById(any())).thenReturn(Optional.empty());
+        final NotFoundException exc = assertThrows(NotFoundException.class,
+                () -> controller.updateBeneficiary(1L, updateRequest));
+        verify(service).findById(any());
+
+        String actualMessage = exc.getMessage();
+        String expectedMessage = "Beneficiary has not found.";
+
+        assertEquals(404, exc.getStatus());
+        assertThrows(NotFoundException.class, () -> controller.updateBeneficiary(1L, updateRequest));
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void deleteBeneficiary() {
+        when(service.findById(any())).thenReturn(Optional.of(beneficiary));
+
+        final ResponseEntity<Response> response = controller.deleteBeneficiary(1L);
+        verify(service).findById(any());
+        verify(service).deleteBeneficiary(any());
+
+        assertEquals("Beneficiary with id: 1 is deleted.", response.getBody().getMessage());;
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void deleteBeneficiaryNotFound() {
+        when(service.findById(any())).thenReturn(Optional.empty());
+        final NotFoundException exc = assertThrows(NotFoundException.class,
+                () -> controller.findById(1L));
+        verify(service).findById(any());
+
+        String actualMessage = exc.getMessage();
+        String expectedMessage = "Beneficiary has not found.";
+
+        assertEquals(404, exc.getStatus());
+        assertThrows(NotFoundException.class, () -> controller.deleteBeneficiary(1L));
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
 
 }
 
@@ -136,9 +192,9 @@ class BeneficiaryControllerBadRequestTest {
     @Test
     void findByIdBadRequest() throws Exception {
         mockMvc.perform(get("/api/beneficiary/23df")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message",is("The parameter type `23df` is invalid. `Long` type is required ")))
+                .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))
                 .andExpect(jsonPath("$.status", is(400)));
     }
 
@@ -154,7 +210,25 @@ class BeneficiaryControllerBadRequestTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestBody))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message",is("Invalid input. `firstDeposit` must be a positive number")))
+                .andExpect(jsonPath("$.message", is("Invalid input. `firstDeposit` must be a positive number")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    void updateBeneficiaryBadRequest() throws Exception {
+        mockMvc.perform(put("/api/beneficiary/23df")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    void deleteBeneficiaryBadRequest() throws Exception {
+        mockMvc.perform(delete("/api/beneficiary/23df")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))
                 .andExpect(jsonPath("$.status", is(400)));
     }
 }
