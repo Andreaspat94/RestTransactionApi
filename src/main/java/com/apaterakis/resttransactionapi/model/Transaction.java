@@ -41,7 +41,6 @@ public class Transaction {
 
     @NotNull
     @JsonIgnore
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yy");
     @Column(nullable = false)
     private LocalDate date;
 

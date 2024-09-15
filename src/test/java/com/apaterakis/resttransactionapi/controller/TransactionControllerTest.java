@@ -1,8 +1,10 @@
 package com.apaterakis.resttransactionapi.controller;
 
+import com.apaterakis.resttransactionapi.exception.DuplicateBeneficiaryException;
 import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Response;
 import com.apaterakis.resttransactionapi.model.Transaction;
+import com.apaterakis.resttransactionapi.model.TransactionRequest;
 import com.apaterakis.resttransactionapi.model.TransactionType;
 import com.apaterakis.resttransactionapi.service.BeneficiaryService;
 import com.apaterakis.resttransactionapi.service.LoadDataService;
@@ -19,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -33,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +53,7 @@ public class TransactionControllerTest {
     private Transaction transaction2;
     private Transaction transaction3;
     private List<Transaction> transactions;
+    private TransactionRequest request;
 
     @BeforeEach
     void setUp() {
@@ -61,6 +66,8 @@ public class TransactionControllerTest {
         transactions = new ArrayList<>();
         transactions.add(transaction1);
         transactions.add(transaction2);
+
+        request = new TransactionRequest(1802L, new BigDecimal(100), TransactionType.WITHDRAWAL);
     }
 
     @Test
@@ -115,6 +122,16 @@ public class TransactionControllerTest {
         assertThrows(NotFoundException.class, () -> controller.findByBeneficiaryId(1L));
         assertTrue(actualMessage.contains(expectedMessage));
     }
+
+    @Test
+    void createTransaction() {
+        when(service.createTransaction(request)).thenReturn(transaction1);
+        final ResponseEntity<Response> response = controller.createTransaction(request);
+        verify(service).createTransaction(request);
+
+        assertEquals(transaction1, response.getBody().getData());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    }
 }
 
 @WebMvcTest(TransactionController.class)
@@ -149,6 +166,20 @@ class TransactionControllerBadRequestTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("The parameter type `23df` is invalid. `Long` type is required ")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    void createTransaction() throws Exception {
+        String invalidRequestBody = "{"
+                + "\"accountId\": \"1802\","
+                + "\"amount\": \"-100\","
+                + "\"type\": \"DEPOSIT\""
+                + "}";
+        mockMvc.perform(post("/api/transaction")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is( "Invalid input. `accountId` and `amount` should be positive numbers.")))
                 .andExpect(jsonPath("$.status", is(400)));
     }
 }

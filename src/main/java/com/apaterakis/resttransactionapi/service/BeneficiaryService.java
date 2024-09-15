@@ -49,12 +49,16 @@ public class BeneficiaryService {
     }
 
     public Beneficiary updateBeneficiary(Beneficiary beneficiary, BeneficiaryUpdateRequest beneficiaryRequest) {
-           beneficiary.setFirstName(beneficiaryRequest.getFirstName());
-           beneficiary.setLastName(beneficiaryRequest.getLastName());
-           return save(beneficiary);
+        beneficiary.setFirstName(beneficiaryRequest.getFirstName());
+        beneficiary.setLastName(beneficiaryRequest.getLastName());
+        return save(beneficiary);
     }
 
     public void deleteBeneficiary(Long id) {
         beneficiaryRepository.deleteById(id);
+    }
+
+    public boolean isBeneficiaryTableEmpty() {
+        return beneficiaryRepository.count() == 0;
     }
 }
