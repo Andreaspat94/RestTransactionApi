@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
     boolean existsByFirstNameAndLastName(String firstName, String lastName);
+
+    boolean existsByBeneficiaryId(Long id);
 }

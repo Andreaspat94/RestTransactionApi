@@ -1,5 +1,6 @@
 package com.apaterakis.resttransactionapi.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -23,7 +24,7 @@ public class Account {
     @JoinColumn(name = "beneficiary_id",
             referencedColumnName = "beneficiaryId",
             foreignKey = @ForeignKey(name="FK_ACCOUNT_BENEFICIARY"))
-    @JsonIgnore
+    @JsonIgnoreProperties("accounts")
     private Beneficiary beneficiary;
 
     @Column(nullable = false)

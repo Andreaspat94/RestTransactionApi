@@ -70,7 +70,7 @@ public class TransactionService {
     @Transactional
     public Transaction createTransaction(TransactionRequest request) {
         Long accountId = request.getAccountId();
-        Optional<Account> optionalAccount = accountService.findById(accountId);
+        Optional<Account> optionalAccount = accountService.findByIdWithLock(accountId);
 
         if (optionalAccount.isEmpty()) {
             throw new NotFoundException("Account with id: " + accountId + " has not found.");

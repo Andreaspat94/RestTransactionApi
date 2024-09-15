@@ -35,7 +35,9 @@ public class GenericExceptionHandler {
         String invalidValue = exc.getValue().toString();
         String message = "";
         String controllerName = handlerMethod.getBeanType().getSimpleName();
-        if (controllerName.equals("BeneficiaryController") || controllerName.equals("TransactionController")) {
+        if (controllerName.equals("BeneficiaryController")
+                || controllerName.equals("TransactionController")
+                || controllerName.equals("AccountController")) {
             message = "The parameter type `" + invalidValue + "` is invalid. `Long` type is required ";
         }
         ErrorResponse error = new ErrorResponse(
@@ -51,6 +53,8 @@ public class GenericExceptionHandler {
         String message = "";
         if (controllerName.equals("TransactionController")) {
             message = "Invalid input. `accountId` and `amount` should be positive numbers.";
+        } else if (controllerName.equals("AccountController")) {
+            message = "Request parameters must be positive numbers";
         } else {
             message = "Invalid input. `firstDeposit` must be a positive number";
         }

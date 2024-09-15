@@ -1,6 +1,5 @@
 package com.apaterakis.resttransactionapi.controller;
 
-import com.apaterakis.resttransactionapi.exception.DuplicateBeneficiaryException;
 import com.apaterakis.resttransactionapi.exception.NotFoundException;
 import com.apaterakis.resttransactionapi.model.Response;
 import com.apaterakis.resttransactionapi.model.Transaction;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;

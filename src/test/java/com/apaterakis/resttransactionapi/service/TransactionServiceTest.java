@@ -10,9 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
-import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -98,11 +96,12 @@ public class TransactionServiceTest {
 
     @Test
     void createTransaction() {
-        when(accountService.findById(any())).thenReturn(Optional.of((account1)));
+        when(accountService.findByIdWithLock(any())).thenReturn(Optional.of((account1)));
         when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction3);
 
         Transaction result = transactionService.createTransaction(request);
 
+        verify(accountService).findByIdWithLock(any());
         verify(accountService).save(account1);
         verify(transactionRepository).save(any(Transaction.class));
 
@@ -113,12 +112,12 @@ public class TransactionServiceTest {
 
     @Test
     void createTransactionWhenAccountNotFound() {
-        when(accountService.findById(1802L)).thenReturn(Optional.empty());
+        when(accountService.findByIdWithLock(1802L)).thenReturn(Optional.empty());
 
         final NotFoundException exc = assertThrows(NotFoundException.class,
                 () -> transactionService.createTransaction(request));
 
-        verify(accountService).findById(1802L);
+        verify(accountService).findByIdWithLock(1802L);
 
         String actualMessage = exc.getMessage();
         String expectedMessage = "Account with id: 1802 has not found.";

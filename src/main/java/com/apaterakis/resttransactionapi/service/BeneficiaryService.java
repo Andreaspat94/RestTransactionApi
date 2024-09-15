@@ -61,4 +61,8 @@ public class BeneficiaryService {
     public boolean isBeneficiaryTableEmpty() {
         return beneficiaryRepository.count() == 0;
     }
+
+    public boolean existsByBeneficiaryId(Long id) {
+        return beneficiaryRepository.existsByBeneficiaryId(id);
+    }
 }

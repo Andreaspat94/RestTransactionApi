@@ -143,6 +143,27 @@ public class BeneficiaryController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deletes beneficiary.", description = "Deletes a beneficiary by its id" +
+            "If beneficiary given id is not found, then throws NotFoundException.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Beneficiary deleted."),
+            @ApiResponse(responseCode = "400", description = "BadRequest. The parameter type is invalid.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                           "status": 400,
+                           "message": "The parameter type `1004ff` is invalid. `Long` type is required ",
+                           "successful": false
+                       }
+                    """))),
+            @ApiResponse(responseCode = "404", description = " Beneficiary has not found.",
+                    content = @Content(examples = @ExampleObject(value = """
+                       {
+                         "status": 404,
+                         "message": "Beneficiary has not found.",
+                         "successful": false
+                       }
+                    """)))
+    })
     public ResponseEntity<Response> deleteBeneficiary(@PathVariable("id") Long id) {
         Optional<Beneficiary> beneficiaryOptional = beneficiaryService.findById(id);
 

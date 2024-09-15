@@ -1,5 +1,6 @@
 package com.apaterakis.resttransactionapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Setter
-//@ToString
 @ToString(exclude = "accounts") // avoid infinite recursion between account and beneficiary circular calls
 @NoArgsConstructor
 @Entity
@@ -31,6 +31,7 @@ public class Beneficiary {
     private String lastName;
 
     @OneToMany(mappedBy = "beneficiary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("beneficiary")
     private List<Account> accounts;
 
     public Beneficiary(String firstName, String lastName) {
